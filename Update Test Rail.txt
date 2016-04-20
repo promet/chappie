@@ -1,0 +1,67 @@
+*** Settings ***
+Library           Selenium2Library
+
+*** Variables ***
+${testrailUrl}    https://prometsource.testrail.net
+${testrailUser}    prometqa@prometsource.com
+${testrailPassword}    Drupaladm1n
+${testProject}    Test Project
+${testRunAndResult}    Test Runs & Results
+${testRun}        Sample Test Run
+${userFullName}    Promet Qa
+${testCase}       Login with Invalid Credentials
+${display_text}    Success!
+
+*** Keywords ***
+Login To Testrail
+    [Arguments]    ${url}=${testrailUrl}    ${user}=${testrailUser}    ${password}=${testrailPassword}
+    Open Browser    ${testrailUrl}    firefox
+    Maximize Browser Window
+    Wait Until Page Contains Element    name
+    Input Text    name    ${testrailUser}
+    Wait Until Page Contains Element    password
+    Input Text    password    ${testrailPassword}
+    Submit Form
+
+Go To Project Page
+    [Arguments]    ${project}
+    Wait Until Page Contains Element    //a[contains(text(),'${testProject}')]
+    Click Element    //a[contains(text(),'${testProject}')]
+
+Go To Test Runs and Results Page
+    Wait Until Page Contains Element    //a[contains(text(),'Test Runs & Results')]
+    Click Element    //a[contains(text(),'Test Runs & Results')]
+
+Run Test
+    [Arguments]    ${tr}
+    Wait Until Page Contains Element    //a[contains(text(),'${tr}')]
+    Click Element    //a[contains(text(),'${tr}')]
+
+Update Result Of
+    [Arguments]    ${testCase}
+    Wait Until Page Contains Element    //a[contains(text(),'${testCase}')]
+    Click Element    //a[contains(text(),'${testCase}')]
+    Wait Until Page Contains Element    //div/a[@id='addResult']
+    Click Element    //div/a[@id='addResult']
+    Wait Until Page Contains Element    addResultStatus
+    ${status}=    Set Variable If    '${TEST STATUS}' == 'PASS'    Passed    Failed
+    Select From List By Label    addResultStatus    ${status}
+    Wait Until Page Contains Element    addResultSubmit
+    Click Element    addResultSubmit
+
+Logout and Close Browser
+    Wait Until Element Is Not Visible    addResultSubmit
+    Wait Until Page Contains Element    //a[contains(text(),'${userFullName}')]
+    Click Element    //a[contains(text(),'${userFullName}')]
+    Wait Until Page Contains Element    //a[contains(text(),'Logout')]
+    Click Element    //a[contains(text(),'Logout')]
+    Wait Until Page Contains Element    name
+    Close All Browsers
+
+Update Testrail
+    Login To Testrail
+    Go To Project Page    ${testProject}
+    Go To Test Runs and Results Page
+    Run Test    ${testRun}
+    Update Result Of    ${TEST_NAME}
+    Logout and Close Browser
